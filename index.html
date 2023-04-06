@@ -1,46 +1,142 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>HTML Example</title>
-  
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/about.css">
+<meta charset="UTF-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Radar Chart</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- jQuery 및 jQuery UI 라이브러리 불러오기 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<style>
+    #radarChartContainer {
+        width: 500px;
+        height: 500px;
+        margin-top: 50px; /* 상단 여백 조정 */
+        margin-left: auto; /* 가운데 정렬 */
+        margin-right: auto; /* 가운데 정렬 */
+    }
+</style>
 </head>
+
 <body>
-  <section class="center">
-    <aside class="sidebar"></aside>
-    
-    <section class="contents">
-      <!-- page will be include here -->
-      <section id="page" class="page">
-        <section id="about">
-          <section class="frame">
-            <h2><b>HELLO</b>WORLD</h2>
-            
-            <div class="cat">
-              <div class="picture">
-                <img src="images/mew.png" alt="Mew">
-              </div>
-              <small>Mew</small>
-            </div>
-            <div class="cat">
-              <div class="picture">
-                <img src="images/siesta.png" alt="Siesta">
-              </div>
-              <small>Siesta</small>
-            </div>
-            <div class="cat">
-              <div class="picture">
-                <img src="images/tiger.png" alt="Tiger">
-              </div>
-              <small>Tiger</small>
-            </div>
-          </section>
-        </section>
-      </section>
-    </section>
-  </section>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-2">
+            <label for="input1">기술이전액</label>
+            <input type="float" id="input1" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="input2">출원건수</label>
+            <input type="float" id="input2" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="input3">임용기간</label>
+            <input type="float" id="input3" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="input4">연구과제건수</label>
+            <input type="float" id="input4" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="input5">연구비</label>
+            <input type="float" id="input5" class="form-control">
+        </div>
+        <div class="col-md-2 justify-content-end d-flex">
+            <button type="button" class="btn btn-primary" onclick="updateRadarChart()">챠트 실행</button>
+        </div>
+
+    </div>
+    <!--<div class="row mt-3">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary" onclick="updateRadarChart()">Update Chart</button>
+        </div>
+    </div>-->
+
+</div>
+<div id="radarChartContainer">
+    <canvas id="radarChart"></canvas>
+</div>
+
 </body>
 </html>
+<script type="text/javascript">
+    // 입력값
+    //var data = [1.269, 0.034, 0.019, 0.054, 0.455];
+    var data = [];
+
+    // 항목별 최소값과 최대값
+    var minValues = [0, 0, 0, 0, 0]; // 각 항목별 최소값
+    var maxValues = [10, 10, 10, 10, 10]; // 각 항목별 최대값
+
+    // 그래프 생성
+    var ctx = document.getElementById("radarChart").getContext('2d');
+    var myRadarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ["기술이전액", "출원건수", "임용기간", "연구과제건수", "연구비"],
+            datasets: [{
+                fill: true, //채우기
+                label: '연구자 점수 = 0',
+                data: data,
+                backgroundColor: "rgba(32,140,236,0.7)",
+                borderColor: "rgba(32,140,236,1)",
+                pointBorderColor: "#fff",
+                pointBackgroundColor: "rgba(179,181,198,1)",
+                borderWidth: 3
+
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            scale: {
+                pointLabels: {
+                    fontSize: 16, // 항목별 폰트 크기
+                },
+                ticks: {
+                    beginAtZero: true, // 최소값이 0이 아닌 경우 false로 설정
+                    maxTicksLimit: 5, // 최대 표시할 눈금 개수
+                }
+
+            },
+            legend: { // 레이블 위치 수정
+                position: 'bottom', // 하단에 표시
+                onClick: function(event, legendItem) { // 라벨 클릭 이벤트 비활성화
+                    return false;
+                }
+            }
+        }
+    });
+
+    // 항목별 최소값과 최대값 적용
+    var scales = myRadarChart.options.scale;
+    for (var i = 0; i < scales.pointLabels.length; i++) {
+        scales.pointLabels[i].min = minValues[i];
+        scales.pointLabels[i].max = maxValues[i];
+    }
+
+    // Function to update radar chart
+    function updateRadarChart() {
+        // Get input values
+        var input1 = parseFloat(document.getElementById('input1').value) || 0;
+        var input2 = parseFloat(document.getElementById('input2').value) || 0;
+        var input3 = parseFloat(document.getElementById('input3').value) || 0;
+        var input4 = parseFloat(document.getElementById('input4').value) || 0;
+        var input5 = parseFloat(document.getElementById('input5').value) || 0;
+
+        var tmp =input1+input2+input3+input4-input5;
+        if(!Number.isInteger(tmp)){
+            tmp =tmp.toFixed(3);
+        }
+        myRadarChart.data.datasets[0].data = [input1, input2, input3, input4, input5];
+        myRadarChart.data.datasets[0].label = '연구자 점수(기술이전액+출원건수+임용기간+연구과제건수-연구비) = '+tmp.toString();
+        myRadarChart.update(); // Update chart
+    }
+</script>
+
+
