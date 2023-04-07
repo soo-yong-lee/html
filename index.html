@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 <style>
     #radarChartContainer {
         width: 500px;
@@ -27,27 +28,27 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-2">
-            <label for="input1">기술이전액</label>
+            <label for="input1">기술이전액(원)</label>
             <input type="float" id="input1" class="form-control">
         </div>
         <div class="col-md-2">
-            <label for="input2">출원건수</label>
+            <label for="input2">출원건수(건)</label>
             <input type="float" id="input2" class="form-control">
         </div>
         <div class="col-md-2">
-            <label for="input3">임용기간</label>
+            <label for="input3">임용기간(년)</label>
             <input type="float" id="input3" class="form-control">
         </div>
         <div class="col-md-2">
-            <label for="input4">연구과제건수</label>
+            <label for="input4">연구과제건수(건)</label>
             <input type="float" id="input4" class="form-control">
         </div>
         <div class="col-md-2">
-            <label for="input5">연구비</label>
+            <label for="input5">연구비(원)</label>
             <input type="float" id="input5" class="form-control">
         </div>
         <div class="col-md-2 justify-content-end d-flex">
-            <button type="button" class="btn btn-primary" onclick="updateRadarChart()">챠트 실행</button>
+            <button type="button" class="btn btn-primary" onclick="updateRadarChart()">차트 실행</button>
         </div>
 
     </div>
@@ -71,7 +72,7 @@
 
     // 항목별 최소값과 최대값
     var minValues = [0, 0, 0, 0, 0]; // 각 항목별 최소값
-    var maxValues = [10, 10, 10, 10, 10]; // 각 항목별 최대값
+    var maxValues = [5, 5, 5, 5, 5]; // 각 항목별 최대값
 
     // 그래프 생성
     var ctx = document.getElementById("radarChart").getContext('2d');
@@ -81,7 +82,7 @@
             labels: ["기술이전액", "출원건수", "임용기간", "연구과제건수", "연구비"],
             datasets: [{
                 fill: true, //채우기
-                label: '연구자 점수 = 0',
+                label: '연구자 점수 = -',
                 data: data,
                 backgroundColor: "rgba(32,140,236,0.7)",
                 borderColor: "rgba(32,140,236,1)",
@@ -101,6 +102,7 @@
                 ticks: {
                     beginAtZero: true, // 최소값이 0이 아닌 경우 false로 설정
                     maxTicksLimit: 5, // 최대 표시할 눈금 개수
+                    max: 5 // 최대값을 5로 설정 눈금최대값 생략하면 최대값으로 계산됨
                 }
 
             },
@@ -108,6 +110,9 @@
                 position: 'bottom', // 하단에 표시
                 onClick: function(event, legendItem) { // 라벨 클릭 이벤트 비활성화
                     return false;
+                },
+                labels: {
+                    fontSize: 26, // 레전드 폰트 크기
                 }
             }
         }
@@ -119,22 +124,160 @@
         scales.pointLabels[i].min = minValues[i];
         scales.pointLabels[i].max = maxValues[i];
     }
+    // 입력된 값이 정수 체크하는 함수
+    function isInteger(value) {
+        return /^\d+$/.test(value);
+    }
 
-    // Function to update radar chart
     function updateRadarChart() {
-        // Get input values
-        var input1 = parseFloat(document.getElementById('input1').value) || 0;
-        var input2 = parseFloat(document.getElementById('input2').value) || 0;
-        var input3 = parseFloat(document.getElementById('input3').value) || 0;
-        var input4 = parseFloat(document.getElementById('input4').value) || 0;
-        var input5 = parseFloat(document.getElementById('input5').value) || 0;
+        //범주 점수 초기화
+        var input1 = 0;
+        var input2 = 0;
+        var input3 = 0;
+        var input4 = 0;
+        var input5 = 0;
 
-        var tmp =input1+input2+input3+input4-input5;
-        if(!Number.isInteger(tmp)){
-            tmp =tmp.toFixed(3);
+        if (isInteger($('#input1').val())) {
+            input1 = $('#input1').val();
+        }else{
+            alert('기술이전액(원) 입력값을 확인하여 주세요');
+            $('#input1').val('');
+            $('#input1').focus();
+            return;
         }
+        if (isInteger($('#input2').val())) {
+            input2 = $('#input2').val();
+        }else{
+            alert('출원건수(건) 입력값을 확인하여 주세요');
+            $('#input2').val('');
+            $('#input2').focus();
+            return;
+        }
+        if (isInteger($('#input3').val())) {
+            input3 = $('#input3').val();
+        }else{
+            alert('임용기간(년) 입력값을 확인하여 주세요');
+            $('#input3').val('');
+            $('#input3').focus();
+            return;
+        }
+        if (isInteger($('#input4').val())) {
+            input4 = $('#input4').val();
+        }else{
+            alert('연구과제건수(건) 입력값을 확인하여 주세요');
+            $('#input4').val('');
+            $('#input4').focus();
+            return;
+        }
+        if (isInteger($('#input5').val())) {
+            input5 = $('#input5').val();
+        }else{
+            alert('연구비(원) 입력값을 확인하여 주세요');
+            $('#input5').val('');
+            $('#input5').focus();
+            return;
+        }
+
+        //기술이전액(원)
+        if(input1 <= 100000000){
+            input1 = 1;
+        }else if(input1 <= 1000000000){
+            input1 = 2;
+        }else if(input1 <= 10000000000){
+            input1 = 3;
+        }else if(input1 <= 50000000000){
+            input1 = 4;
+        }else{
+            input1 = 5;
+        }
+
+        //출원건수(건)
+        if(input2 <= 10){
+            input2 = 1;
+        }else if(input2 <= 20){
+            input2 = 2;
+        }else if(input2 <= 30){
+            input2 = 3;
+        }else if(input2 <= 40){
+            input2 = 4;
+        }else{
+            input2 = 5;
+        }
+
+        //임용기간(년)
+        if(input3 <= 5){
+            input3 = 1;
+        }else if(input3 <= 10){
+            input3 = 2;
+        }else if(input3 <= 15){
+            input3 = 3;
+        }else if(input3 <= 20){
+            input3 = 4;
+        }else{
+            input3 = 5;
+        }
+
+
+        //연구과제건수(건)
+        if(input4 <= 5){
+            input4 = 1;
+        }else if(input4 <= 10){
+            input4 = 2;
+        }else if(input4 <= 15){
+            input4 = 3;
+        }else if(input4 <= 20){
+            input4 = 4;
+        }else{
+            input4 = 5;
+        }
+
+        //연구비(원)
+        if(input5 <= 1000000000){
+            input5 = 1;
+        }else if(input5 <= 10000000000){
+            input5 = 2;
+        }else if(input5 <= 2500000000){
+            input5 = 3;
+        }else if(input5 <= 50000000000){
+            input5 = 4;
+        }else{
+            input5 = 5;
+        }
+
+
+// 1.269, 0.034, 0.019, 0.054, 0.455
+        //1.269 + 0.034 + 0.019 + 0.054 - 0.455 = 0.921
+        console.log(parseFloat(1.269) * input1);
+
+        var tm1 = new Decimal(parseFloat(1.269));
+        var tm2 = new Decimal(parseFloat(0.034));
+        var tm3 = new Decimal(parseFloat(0.019));
+        var tm4 = new Decimal(parseFloat(0.054));
+        var tm5 = new Decimal(parseFloat(0.455));
+
+        var tm = tm1.times(input1).plus(tm2.times(input2)).plus(tm3.times(input3)).plus(tm4.times(input4)).minus(tm5.times(input5));
+        console.log(tm.toString());
+
+        var tmp = '';
+
+        if(tm < 2){
+            tmp = "D급";
+        }else if(tm < 4){
+            tmp = "C급";
+        }else if(tm < 6){
+            tmp = "B급";
+        }else if(tm < 8){
+            tmp = "A급";
+        }else{
+            tmp = "S급";
+        }
+
+       // var tmp =input1+input2+input3+input4-input5;
+/*        if(!Number.isInteger(tmp)){
+            tmp =tmp.toFixed(3);
+        }*/
         myRadarChart.data.datasets[0].data = [input1, input2, input3, input4, input5];
-        myRadarChart.data.datasets[0].label = '연구자 점수(기술이전액+출원건수+임용기간+연구과제건수-연구비) = '+tmp.toString();
+        myRadarChart.data.datasets[0].label = '연구자 점수 = '+tmp.toString();
         myRadarChart.update(); // Update chart
     }
 </script>
