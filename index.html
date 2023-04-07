@@ -253,8 +253,14 @@
         var tm4 = new Decimal(parseFloat(0.054));
         var tm5 = new Decimal(parseFloat(0.455));
 
-        var tm = tm1.times(input1).plus(tm2.times(input2)).plus(tm3.times(input3)).plus(tm4.times(input4)).minus(tm5.times(input5));
-        console.log(tm.toString());
+       // var tm = tm1.times(input1).plus(tm2.times(input2)).plus(tm3.times(input3)).plus(tm4.times(input4)).minus(tm5.times(input5));
+        var tm = tm1.mul(input1)
+            .plus(tm2.mul(input2))
+            .plus(tm3.mul(input3))
+            .plus(tm4.mul(input4))
+            .plus(tm5.mul(input5));
+        console.log(tm1+'*'+input1+'+'+tm2+'*'+input2+'+'+tm3+'*'+input3+'+'+tm4+'*'+input4+'+'+tm5+'*'+input5);
+        console.log('결과->'+tm.toString());
 
         var tmp = '';
 
